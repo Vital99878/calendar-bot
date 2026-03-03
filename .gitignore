@@ -6,10 +6,9 @@ dist-ssr
 count.txt
 .env
 .nitro
-.tanstack
 .wrangler
 .idea
-
+.vscode
 
 # Forbidden lockfile's (pnpm-only repo)
 package-lock.json

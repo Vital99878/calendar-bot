@@ -36,17 +36,17 @@ module.exports = function format(report = {}) {
     out += `✖   Сообщение коммита не соответствует требуемому формату.\n\n`;
 
     out += `Как правильно:\n`;
-    out += `  Формат: <КЛЮЧ> <тип>(<scope>)?: <краткое описание>\n`;
-    out += `  Пример: ABC-123 feat(api): добавить http client\n\n`;
+    out += `  Формат: <тип>(<scope>)?: <краткое описание>\n`;
+    out += `  Пример: feat(api): добавить http client\n\n`;
 
     out += `Типы: ${ALLOWED_TYPES.join(', ')}\n`;
     out += `Scope (если указан): ${ALLOWED_SCOPES.join(', ')}\n\n`;
 
     out += `Примеры:\n`;
-    out += `  ABC-123 chore(tooling): настроить husky и commitlint\n`;
-    out += `  ABC-123 feat(api): добавить http client\n`;
-    out += `  ABC-123 fix(query): исправить обработку 401\n`;
-    out += `  ABC-123 docs(repo): обновить README\n\n`;
+    out += `  chore(tooling): настроить husky и commitlint\n`;
+    out += `  feat(api): добавить http client\n`;
+    out += `  fix(query): исправить обработку 401\n`;
+    out += `  docs(repo): обновить README\n\n`;
   }
 
   return out;

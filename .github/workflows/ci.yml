@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -59,7 +61,10 @@ jobs:
         run: pnpm run lint
 
       - name: Typecheck (tsc)
-        run: pnpm exec tsc -p tsconfig.json --noEmit
+        run: pnpm exec tsc -p tsconfig.json
+
+      - name: Test (Vitest)
+        run: pnpm run test
 
       - name: Commit messages (commitlint) - PR only
         if: github.event_name == 'pull_request'

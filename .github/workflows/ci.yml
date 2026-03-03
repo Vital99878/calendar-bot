@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality (lint/format/typecheck/test)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Activate pnpm from package.json
+        run: corepack prepare --activate
+
+      - name: Show versions
+        run: |
+          node -v
+          pnpm -v
+
+      - name: Get pnpm store path
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Check forbidden lockfiles
+        run: pnpm run check:lockfiles
+
+      - name: Format check (Prettier)
+        run: pnpm run format:check
+
+      - name: Lint (ESLint)
+        run: pnpm run lint
+
+      - name: Typecheck (tsc)
+        run: pnpm exec tsc -p tsconfig.json --noEmit
+
+      - name: Commit messages (commitlint) - PR only
+        if: github.event_name == 'pull_request'
+        run: pnpm exec commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose

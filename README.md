@@ -53,3 +53,8 @@ tooling, repo, config, ci, app, router, api, query, mocks, shared, ui, entities,
 <= 100 символов
 
 Тело коммита можно писать свободно, любым языком
+
+## prisma
+
+docker run --rm --network calendar-net -e PGPASSWORD=postgres -it postgres:16 psql -h calendar-bot-db -p 5432 -U postgres -d calendar_bot -c "SELECT 1;"
+эта команда работает. Сервис берет данные из docker container calendar-bot-db

@@ -1,5 +1,7 @@
 import { z } from 'zod'
-import { startCreateTemplate, getDraft, setTitle, clearDraft } from '../flows/templateDraftStore.js'
+import { clearDraft, getDraft, setTitle, startCreateTemplate } from './templateDraftStore.js'
+import { ensureUser } from '../db/usersRepo.js'
+import { createTemplate } from '../db/templatesRepo.js'
 
 const TitleSchema = z
   .string()
@@ -9,28 +11,26 @@ const TitleSchema = z
 
 export function beginCreateTemplate(userId: number) {
   startCreateTemplate(userId)
-  return {
-    text: 'Введи название шаблона одним сообщением:',
-  }
+  return { text: 'Введи название шаблона одним сообщением:' }
 }
 
-export function handleCreateTemplateText(userId: number, text: string) {
+export async function handleCreateTemplateText(userId: number, text: string) {
   const draft = getDraft(userId)
-  if (!draft) return null // пользователь не в этом flow
+  if (!draft) return null
 
   const parsed = TitleSchema.safeParse(text)
   if (!parsed.success) {
-    return {
-      text: `❌ ${parsed.error.issues[0]?.message}\nПопробуй ещё раз:`,
-    }
+    return { text: `❌ ${parsed.error.issues[0]?.message}\nПопробуй ещё раз:` }
   }
 
   setTitle(userId, parsed.data)
 
-  // пока “сохраняем” условно и завершаем
+  const user = await ensureUser(String(userId))
+  const tpl = await createTemplate({ userId: user.id, title: parsed.data })
+
   clearDraft(userId)
 
   return {
-    text: `✅ Шаблон создан (пока в демо-режиме).\nНазвание: "${parsed.data}"\n\nДальше подключим Prisma и начнём сохранять в БД.`,
+    text: `✅ Шаблон сохранён в БД!\nНазвание: "${tpl.title}"\nID: ${tpl.id}\n\nДальше добавим шаги (описание/напоминание) и генерацию .ics.`,
   }
 }

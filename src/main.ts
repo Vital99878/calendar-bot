@@ -1,15 +1,14 @@
-// src/main.ts
 import 'dotenv/config'
-import { Telegraf, Markup } from 'telegraf'
+import { Telegraf } from 'telegraf'
 import { z } from 'zod'
+import { registerStart } from './bot/handlers/start.js'
+import { registerTemplates } from './bot/handlers/templates.js'
 
 const EnvSchema = z.object({
-  BOT_TOKEN: z.string().min(1, 'BOT_TOKEN is required'),
+  BOT_TOKEN: z.string().min(1),
 })
 
-const env = EnvSchema.parse({
-  BOT_TOKEN: process.env.BOT_TOKEN,
-})
+const env = EnvSchema.parse({ BOT_TOKEN: process.env.BOT_TOKEN })
 
 const bot = new Telegraf(env.BOT_TOKEN)
 
@@ -17,39 +16,15 @@ bot.catch((err, ctx) => {
   console.error('Bot error for update', ctx.update.update_id, err)
 })
 
-bot.start(async (ctx) => {
-  await ctx.reply(
-    'Привет! Я календарь-бот. Могу генерировать .ics и работать с шаблонами 🙂',
-    Markup.inlineKeyboard([Markup.button.callback('➕ Создать шаблон', 'tpl:create')]),
-  )
-})
-
-bot.command('ping', async (ctx) => {
-  await ctx.reply('pong')
-})
-
-bot.action('tpl:create', async (ctx) => {
-  // важно: на callback-query лучше ответить, чтобы у пользователя не крутился "часик"
-  await ctx.answerCbQuery()
-  await ctx.reply('Ок! Введи название шаблона одним сообщением.')
-})
-
-// пока просто эхо-логика: ловим текст, который не команда
-bot.on('text', async (ctx) => {
-  const text = ctx.message.text.trim()
-
-  if (text.startsWith('/')) return // команды не трогаем
-
-  await ctx.reply(`Принял: "${text}". Дальше добавим сохранение в БД и шаги мастера.`)
-})
+registerStart(bot)
+registerTemplates(bot)
 
 async function start() {
-  console.log('Starting bot (polling)...')
   await bot.launch()
-  console.log('Bot is running ✅')
+  const me = await bot.telegram.getMe()
+  console.log(`Bot started as @${me.username} ✅`)
 }
 
-// graceful shutdown
 process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 

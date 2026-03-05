@@ -1,5 +1,6 @@
 import type { Telegraf } from 'telegraf'
 import { beginCreateTemplate, handleCreateTemplateText } from '../../flows/createTemplateFlow.js'
+import { listTemplates } from '../../flows/listTemplatesFlow.js'
 
 export function registerTemplates(bot: Telegraf) {
   bot.action('tpl:create', async (ctx) => {
@@ -11,6 +12,15 @@ export function registerTemplates(bot: Telegraf) {
     await ctx.reply(res.text)
   })
 
+  bot.action('tpl:list', async (ctx) => {
+    await ctx.answerCbQuery()
+    const userId = ctx.from?.id
+    if (!userId) return
+
+    const res = await listTemplates(userId)
+    await ctx.reply(res.text)
+  })
+
   bot.on('text', async (ctx) => {
     const userId = ctx.from?.id
     if (!userId) return
@@ -18,9 +28,9 @@ export function registerTemplates(bot: Telegraf) {
     const text = ctx.message.text
     if (text.startsWith('/')) return
 
-    const res = handleCreateTemplateText(userId, text)
+    const res = await handleCreateTemplateText(userId, text)
     if (!res) return // не наш flow
 
-    await ctx.reply(res.text)
+    ctx.reply(res.text)
   })
 }

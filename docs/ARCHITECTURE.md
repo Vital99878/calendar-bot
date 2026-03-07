@@ -38,3 +38,7 @@ scripts/
   check-lockfiles.cjs
 dist/                  # build output (не коммитим)
 ```
+
+## Flows
+
+### [createFileIcs](./flows/createFileIcs)

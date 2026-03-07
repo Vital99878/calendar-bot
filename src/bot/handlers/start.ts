@@ -5,6 +5,7 @@ export function registerStart(bot: Telegraf) {
     await ctx.reply(
       'Привет! Я календарь-бот. Начнём 🙂',
       Markup.inlineKeyboard([
+        Markup.button.callback('🗓 Создать событие (.ics)', 'ev:create'),
         Markup.button.callback('➕ Создать шаблон', 'tpl:create'),
         Markup.button.callback('📄 Мои шаблоны', 'tpl:list'),
       ]),

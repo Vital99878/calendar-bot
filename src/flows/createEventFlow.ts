@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { clearDraft, getDraft, startCreateEvent, updateDraft } from './eventDraftStore.js'
 import { parseLocalDateTime } from '../services/dateTime.js'
 import { createIcsFile } from '../services/icsService.js'
+import { escapeHtml } from '../services/escapeHtml.js'
 
 export type FlowResult =
   | { kind: 'reply'; text: string; keyboard?: 'wizard' | 'confirm' }
@@ -42,7 +43,7 @@ export function handleCreateEventText(userId: number, text: string): FlowResult 
         keyboard: 'wizard',
       }
     }
-    updateDraft(userId, { title: parsed.data, step: 'start' })
+    updateDraft(userId, { title: escapeHtml(parsed.data), step: 'start' })
     return {
       kind: 'reply',
       text: '📅 Введи *дату и время начала* в формате `YYYY-MM-DD HH:mm`:',
@@ -51,7 +52,7 @@ export function handleCreateEventText(userId: number, text: string): FlowResult 
   }
 
   if (draft.step === 'start') {
-    const r = parseLocalDateTime(text)
+    const r = parseLocalDateTime(escapeHtml(text))
     if (!r.ok) {
       return {
         kind: 'reply',

@@ -68,7 +68,7 @@ async function applyResult(ctx: Context, res: FlowResult) {
   if (res.kind === 'noop') return
 
   if (res.kind === 'reply') {
-    const extra: ReplyExtra = { parse_mode: 'MarkdownV2' }
+    const extra: ReplyExtra = { parse_mode: 'HTML' }
 
     if (res.keyboard === 'confirm') {
       Object.assign(extra, confirmKeyboard())

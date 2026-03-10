@@ -5,7 +5,7 @@ import { createIcsFile } from '../services/icsService.js'
 import { escapeHtml } from '../services/escapeHtml.js'
 
 export type FlowResult =
-  | { kind: 'reply'; text: string; keyboard?: 'wizard' | 'confirm' }
+  | { kind: 'reply'; text: string; keyboard?: 'wizard' | 'confirm' | 'description' }
   | { kind: 'sendIcs'; text: string; filename: string; content: Buffer }
   | { kind: 'noop' }
 
@@ -33,11 +33,28 @@ export function handleCreateEventText(userId: number, text: string): FlowResult 
         keyboard: 'wizard',
       }
     }
-    updateDraft(userId, { title: escapeHtml(parsed.data), step: 'start' })
+    updateDraft(userId, { title: escapeHtml(parsed.data), step: 'description' })
+    return {
+      kind: 'reply',
+      text: 'Введите описание(можно пропустить)',
+      keyboard: 'description',
+    }
+  }
+
+  if (draft.step === 'description') {
+    const parsed = TitleSchema.safeParse(text)
+    if (!parsed.success) {
+      return {
+        kind: 'reply',
+        text: `❌ ${parsed.error.issues[0]?.message}\nПопробуй ещё раз:`,
+        keyboard: 'wizard',
+      }
+    }
+    updateDraft(userId, { description: escapeHtml(parsed.data), step: 'start' })
     return {
       kind: 'reply',
       text: '📅 Введи *дату и время начала* в формате `YYYY-MM-DD HH:mm`:',
-      keyboard: 'wizard',
+      keyboard: 'description',
     }
   }
 
@@ -112,9 +129,20 @@ export function confirmCreateEvent(userId: number): FlowResult {
   }
 }
 
+export function skipDescriptionEvent(userId: number): FlowResult {
+  updateDraft(userId, { description: '', step: 'start' })
+
+  return {
+    kind: 'reply',
+    text: '📅 Введи *дату и время начала* в формате `YYYY-MM-DD HH:mm`:',
+    keyboard: 'wizard',
+  }
+}
+
 function buildSummary(userId: number) {
   const d = getDraft(userId)
-  if (!d?.title || !d.startAt || !d.durationMinutes) return 'Черновик неполный'
+  console.log('d: ', d)
+  if (!d?.title || !d.description || !d.startAt || !d.durationMinutes) return 'Черновик неполный'
 
   const yyyy = d.startAt.getFullYear()
   const mm = String(d.startAt.getMonth() + 1).padStart(2, '0')
@@ -125,6 +153,7 @@ function buildSummary(userId: number) {
   return (
     `✅ *Проверь данные:*\n` +
     `• Название: *${escapeMd(d.title)}*\n` +
+    `• Описание: *${escapeMd(d.description)}*\n` +
     `• Старт: \`${yyyy}-${mm}-${dd} ${hh}:${mi}\`\n` +
     `• Длительность: *${d.durationMinutes} мин*\n\n` +
     `Если всё ок — жми ✅ Подтвердить.`

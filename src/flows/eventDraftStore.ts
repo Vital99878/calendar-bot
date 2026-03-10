@@ -1,6 +1,7 @@
 export type CreateEventDraft = {
-  step: 'title' | 'start' | 'duration' | 'confirm'
+  step: 'title' | 'start' | 'duration' | 'confirm' | 'description'
   title?: string
+  description?: string
   startAt?: Date
   durationMinutes?: number
 }

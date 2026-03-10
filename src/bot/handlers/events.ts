@@ -6,6 +6,7 @@ import {
   confirmCreateEvent,
   type FlowResult,
   handleCreateEventText,
+  skipDescriptionEvent,
 } from '../../flows/createEventFlow.js'
 import { ICS } from '../ui/callbackData.js'
 
@@ -39,6 +40,15 @@ export function registerEvents(bot: Telegraf) {
     await applyResult(ctx, res)
   })
 
+  bot.action(ICS.SKIP, async (ctx) => {
+    await ctx.answerCbQuery()
+    const userId = ctx.from?.id
+    if (!userId) return
+
+    const res = skipDescriptionEvent(userId)
+    await applyResult(ctx, res)
+  })
+
   bot.on(message('text'), async (ctx) => {
     const userId = ctx.from?.id
     if (!userId) return
@@ -61,6 +71,8 @@ async function applyResult(ctx: Context, res: FlowResult) {
       Object.assign(extra, confirmKeyboard())
     } else if (res.keyboard === 'wizard') {
       Object.assign(extra, wizardKeyboard())
+    } else if (res.keyboard === 'description') {
+      Object.assign(extra, descriptionKeyboard())
     }
 
     await ctx.reply(res.text, extra)
@@ -75,6 +87,10 @@ async function applyResult(ctx: Context, res: FlowResult) {
 
 function wizardKeyboard() {
   return Markup.inlineKeyboard([Markup.button.callback('✖️ Отмена', ICS.CANCEL)])
+}
+
+function descriptionKeyboard() {
+  return Markup.inlineKeyboard([Markup.button.callback('Пропустить', ICS.SKIP)])
 }
 
 function confirmKeyboard() {

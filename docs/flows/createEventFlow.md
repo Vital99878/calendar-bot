@@ -74,3 +74,35 @@ Flow возвращает простой объект результата, а `
 - `{ kind: 'sendIcs', text, filename, content }`
 
 Это делает flow тестируемым и упрощает развитие сценариев.
+
+## Конвенция callback data (Inline Keyboard)
+
+Callback data используем как мини-роутинг внутри Telegram UI.
+
+Формат:
+
+- `<feature>:<action>`
+- `<feature>:<action>:<id>` (если нужен идентификатор)
+
+Где:
+
+- `feature` — короткое имя фичи (lowercase, kebab/без пробелов)
+- `action` — глагол (create, confirm, cancel, back, skip, list, open, del)
+- `id` — строковый id (uuid/число), без пробелов
+
+Примеры:
+
+### FR-2 (feature: `ics`)
+
+- `ics:create` — старт wizard “создать событие → получить .ics”
+- `ics:cancel` — отмена wizard
+- `ics:confirm` — подтверждение и генерация файла
+- `ics:skip` — пропуск optional шага
+- `ics:back` — шаг назад
+
+### Templates (feature: `tpl`) — FR-3
+
+- `tpl:list` — список шаблонов
+- `tpl:open:<templateId>` — открыть шаблон
+- `tpl:gen:<templateId>` — сгенерировать .ics по шаблону
+- `tpl:del:<templateId>` — удалить шаблон

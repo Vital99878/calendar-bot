@@ -7,15 +7,12 @@ import {
   type FlowResult,
   handleCreateEventText,
 } from '../../flows/createEventFlow.js'
-
-const ACTION_CREATE = 'ev:create'
-const ACTION_CANCEL = 'ev:cancel'
-const ACTION_CONFIRM = 'ev:confirm'
+import { ICS } from '../ui/callbackData.js'
 
 type ReplyExtra = Parameters<Context['reply']>[1]
 
 export function registerEvents(bot: Telegraf) {
-  bot.action(ACTION_CREATE, async (ctx) => {
+  bot.action(ICS.CREATE, async (ctx) => {
     await ctx.answerCbQuery()
     const userId = ctx.from?.id
     if (!userId) return
@@ -24,7 +21,7 @@ export function registerEvents(bot: Telegraf) {
     await applyResult(ctx, res)
   })
 
-  bot.action(ACTION_CANCEL, async (ctx) => {
+  bot.action(ICS.CANCEL, async (ctx) => {
     await ctx.answerCbQuery()
     const userId = ctx.from?.id
     if (!userId) return
@@ -33,7 +30,7 @@ export function registerEvents(bot: Telegraf) {
     await applyResult(ctx, res)
   })
 
-  bot.action(ACTION_CONFIRM, async (ctx) => {
+  bot.action(ICS.CONFIRM, async (ctx) => {
     await ctx.answerCbQuery()
     const userId = ctx.from?.id
     if (!userId) return
@@ -77,12 +74,12 @@ async function applyResult(ctx: Context, res: FlowResult) {
 }
 
 function wizardKeyboard() {
-  return Markup.inlineKeyboard([Markup.button.callback('✖️ Отмена', ACTION_CANCEL)])
+  return Markup.inlineKeyboard([Markup.button.callback('✖️ Отмена', ICS.CANCEL)])
 }
 
 function confirmKeyboard() {
   return Markup.inlineKeyboard([
-    [Markup.button.callback('✅ Подтвердить', ACTION_CONFIRM)],
-    [Markup.button.callback('✖️ Отмена', ACTION_CANCEL)],
+    [Markup.button.callback('✅ Подтвердить', ICS.CONFIRM)],
+    [Markup.button.callback('✖️ Отмена', ICS.CANCEL)],
   ])
 }

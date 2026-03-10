@@ -1,4 +1,5 @@
 import { Context, Markup, type Telegraf } from 'telegraf'
+import { message } from 'telegraf/filters'
 import {
   beginCreateEvent,
   cancelCreateEvent,
@@ -12,17 +13,6 @@ const ACTION_CANCEL = 'ev:cancel'
 const ACTION_CONFIRM = 'ev:confirm'
 
 type ReplyExtra = Parameters<Context['reply']>[1]
-
-function wizardKeyboard() {
-  return Markup.inlineKeyboard([Markup.button.callback('✖️ Отмена', ACTION_CANCEL)])
-}
-
-function confirmKeyboard() {
-  return Markup.inlineKeyboard([
-    [Markup.button.callback('✅ Подтвердить', ACTION_CONFIRM)],
-    [Markup.button.callback('✖️ Отмена', ACTION_CANCEL)],
-  ])
-}
 
 export function registerEvents(bot: Telegraf) {
   bot.action(ACTION_CREATE, async (ctx) => {
@@ -52,7 +42,7 @@ export function registerEvents(bot: Telegraf) {
     await applyResult(ctx, res)
   })
 
-  bot.on('text', async (ctx) => {
+  bot.on(message('text'), async (ctx) => {
     const userId = ctx.from?.id
     if (!userId) return
 
@@ -84,4 +74,15 @@ async function applyResult(ctx: Context, res: FlowResult) {
     await ctx.reply(res.text)
     await ctx.replyWithDocument({ source: res.content, filename: res.filename })
   }
+}
+
+function wizardKeyboard() {
+  return Markup.inlineKeyboard([Markup.button.callback('✖️ Отмена', ACTION_CANCEL)])
+}
+
+function confirmKeyboard() {
+  return Markup.inlineKeyboard([
+    [Markup.button.callback('✅ Подтвердить', ACTION_CONFIRM)],
+    [Markup.button.callback('✖️ Отмена', ACTION_CANCEL)],
+  ])
 }

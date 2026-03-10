@@ -20,16 +20,6 @@ const DurationSchema = z.coerce
   .min(1, 'Минимум 1 мин')
   .max(24 * 60, 'Макс 1440 мин')
 
-export function beginCreateEvent(userId: number): FlowResult {
-  startCreateEvent(userId)
-  return { kind: 'reply', text: '🗓 Введи *название* события:', keyboard: 'wizard' }
-}
-
-export function cancelCreateEvent(userId: number): FlowResult {
-  clearDraft(userId)
-  return { kind: 'reply', text: 'Ок, отменил создание события.' }
-}
-
 export function handleCreateEventText(userId: number, text: string): FlowResult {
   const draft = getDraft(userId)
   if (!draft) return { kind: 'noop' }
@@ -88,6 +78,16 @@ export function handleCreateEventText(userId: number, text: string): FlowResult 
   }
 
   return { kind: 'noop' }
+}
+
+export function beginCreateEvent(userId: number): FlowResult {
+  startCreateEvent(userId)
+  return { kind: 'reply', text: '🗓 Введи *название* события:', keyboard: 'wizard' }
+}
+
+export function cancelCreateEvent(userId: number): FlowResult {
+  clearDraft(userId)
+  return { kind: 'reply', text: 'Ок, отменил создание события.' }
 }
 
 export function confirmCreateEvent(userId: number): FlowResult {

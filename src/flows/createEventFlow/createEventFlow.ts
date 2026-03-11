@@ -21,7 +21,7 @@ export function continueCreateEvent(userId: number, text: string): FlowOutcome {
     updateDraft(userId, { title: escapeHtml(parsed.data), step: 'description' })
     return {
       kind: 'reply',
-      text: 'Введите описание(можно пропустить)',
+      text: 'Введите <b>описание</b>(можно пропустить)',
       keyboard: 'description',
     }
   }
@@ -38,7 +38,7 @@ export function continueCreateEvent(userId: number, text: string): FlowOutcome {
     updateDraft(userId, { description: escapeHtml(parsed.data), step: 'start' })
     return {
       kind: 'reply',
-      text: '📅 Введи *дату и время начала* в формате `YYYY-MM-DD HH:mm`:',
+      text: '📅 Введи <b>дату и время начала</b> в формате YYYY-MM-DD HH:mm:',
       keyboard: 'description',
     }
   }
@@ -55,7 +55,7 @@ export function continueCreateEvent(userId: number, text: string): FlowOutcome {
     updateDraft(userId, { startAt: r.value, step: 'duration', durationMinutes: 60 })
     return {
       kind: 'reply',
-      text: '⏱ Введи *длительность* в минутах (по умолчанию 60):',
+      text: '⏱ Введите <b>длительность</b> в минутах (по умолчанию 60):',
       keyboard: 'wizard',
     }
   }
@@ -84,7 +84,7 @@ export function continueCreateEvent(userId: number, text: string): FlowOutcome {
 
 export function beginCreateEvent(userId: number): FlowOutcome {
   startCreateEvent(userId)
-  return { kind: 'reply', text: '🗓 Введи *название* события:', keyboard: 'wizard' }
+  return { kind: 'reply', text: '🗓 Введи <b>название</b> события:', keyboard: 'wizard' }
 }
 
 export function cancelCreateEvent(userId: number): FlowOutcome {
@@ -141,7 +141,7 @@ function buildSummary(userId: number) {
   const descLine = desc ? `• Описание: <b>${escapeHtml(desc)}</b>\n` : ''
 
   return (
-    `✅ <b>Проверь данные:</b>\n` +
+    `<b>Проверь данные:</b>\n` +
     `• Название: <b>${escapeHtml(d.title ?? '')}</b>\n` +
     descLine +
     `• Старт: <code>${yyyy}-${mm}-${dd} ${hh}:${mi}</code>\n` +

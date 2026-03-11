@@ -6,7 +6,7 @@ import {
   confirmCreateEvent,
   continueCreateEvent,
   skipDescriptionEvent,
-} from '../../flows/createEventFlow.js'
+} from '../../flows/createEventFlow/createEventFlow.js'
 import { ICS } from '../ui/callbackData.js'
 import { applyOutcome } from '../lib/applyOutcome.js'
 

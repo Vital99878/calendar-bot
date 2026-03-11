@@ -1,34 +1,9 @@
-import { z } from 'zod'
 import { clearDraft, getDraft, startCreateEvent, updateDraft } from './eventDraftStore.js'
-import { parseLocalDateTime } from '../services/dateTime.js'
-import { createIcsFile } from '../services/icsService.js'
-import { escapeHtml } from '../services/escapeHtml.js'
-
-/**
- * FlowOutcome — контракт между flows и Telegram UI.
- *
- * Flow НЕ отправляет сообщения напрямую.
- * Вместо этого он возвращает Outcome, а bot-layer исполняет его
- * (отправляет текст, клавиатуру, файл и т.п.).
- *
- * Это держит flows чистыми и тестируемыми.
- */
-export type FlowOutcome =
-  | { kind: 'reply'; text: string; keyboard?: 'wizard' | 'confirm' | 'description' }
-  | { kind: 'sendIcs'; text: string; filename: string; content: Buffer }
-  | { kind: 'noop' }
-
-const TitleSchema = z
-  .string()
-  .trim()
-  .min(1, 'Название не должно быть пустым')
-  .max(80, 'Макс 80 символов')
-
-const DurationSchema = z.coerce
-  .number()
-  .int()
-  .min(1, 'Минимум 1 мин')
-  .max(24 * 60, 'Макс 1440 мин')
+import { parseLocalDateTime } from '../../services/dateTime.js'
+import { createIcsFile } from '../../services/icsService.js'
+import { escapeHtml } from '../../services/escapeHtml.js'
+import { DescriptionSchema, DurationSchema, TitleSchema } from './schemas.js'
+import type { FlowOutcome } from '../types.js'
 
 export function continueCreateEvent(userId: number, text: string): FlowOutcome {
   const draft = getDraft(userId)
@@ -52,7 +27,7 @@ export function continueCreateEvent(userId: number, text: string): FlowOutcome {
   }
 
   if (draft.step === 'description') {
-    const parsed = TitleSchema.safeParse(text)
+    const parsed = DescriptionSchema.safeParse(text)
     if (!parsed.success) {
       return {
         kind: 'reply',

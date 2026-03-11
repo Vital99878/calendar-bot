@@ -1,6 +1,6 @@
 import { Context } from 'telegraf'
-import type { FlowOutcome } from '../../flows/createEventFlow.js'
 import { confirmKeyboard, descriptionKeyboard, wizardKeyboard } from '../ui/keyboards.ts/index.js'
+import type { FlowOutcome } from '../../flows/types.js'
 
 type ReplyExtra = Parameters<Context['reply']>[1]
 

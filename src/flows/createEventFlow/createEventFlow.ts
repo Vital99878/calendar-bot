@@ -94,7 +94,7 @@ export function cancelCreateEvent(userId: number): FlowOutcome {
 
 export function confirmCreateEvent(userId: number): FlowOutcome {
   const draft = getDraft(userId)
-  if (!draft?.title || !draft.description || !draft.startAt || !draft.durationMinutes) {
+  if (!draft?.title || !draft?.description || !draft.startAt || !draft.durationMinutes) {
     return { kind: 'reply', text: 'Черновик события неполный. Начни заново: /start' }
   }
 
@@ -127,7 +127,6 @@ export function skipDescriptionEvent(userId: number): FlowOutcome {
 
 function buildSummary(userId: number) {
   const d = getDraft(userId)
-  console.log('d: ', d)
   if (!d?.title || !d.description || !d.startAt || !d.durationMinutes) return 'Черновик неполный'
 
   const yyyy = d.startAt.getFullYear()
@@ -136,16 +135,15 @@ function buildSummary(userId: number) {
   const hh = String(d.startAt.getHours()).padStart(2, '0')
   const mi = String(d.startAt.getMinutes()).padStart(2, '0')
 
+  const desc = d.description?.trim()
+  const descLine = desc ? `• Описание: <b>${escapeHtml(desc)}</b>\n` : ''
+
   return (
-    `✅ *Проверь данные:*\n` +
-    `• Название: *${escapeMd(d.title)}*\n` +
-    `• Описание: *${escapeMd(d.description)}*\n` +
-    `• Старт: \`${yyyy}-${mm}-${dd} ${hh}:${mi}\`\n` +
-    `• Длительность: *${d.durationMinutes} мин*\n\n` +
+    `✅ <b>Проверь данные:</b>\n` +
+    `• Название: <b>${escapeHtml(d.title ?? '')}</b>\n` +
+    descLine +
+    `• Старт: <code>${yyyy}-${mm}-${dd} ${hh}:${mi}</code>\n` +
+    `• Длительность: <b>${d.durationMinutes} мин</b>\n\n` +
     `Если всё ок — жми ✅ Подтвердить.`
   )
-}
-
-function escapeMd(s: string) {
-  return s.replace(/[_*[\]()~`>#+=|{}.!-]/g, '\\$&')
 }

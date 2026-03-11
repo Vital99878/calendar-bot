@@ -119,12 +119,13 @@ export function cancelCreateEvent(userId: number): FlowOutcome {
 
 export function confirmCreateEvent(userId: number): FlowOutcome {
   const draft = getDraft(userId)
-  if (!draft?.title || !draft.startAt || !draft.durationMinutes) {
+  if (!draft?.title || !draft.description || !draft.startAt || !draft.durationMinutes) {
     return { kind: 'reply', text: 'Черновик события неполный. Начни заново: /start' }
   }
 
   const { filename, content } = createIcsFile({
     title: draft.title,
+    description: draft.description,
     startAt: draft.startAt,
     durationMinutes: draft.durationMinutes,
   })

@@ -4,11 +4,11 @@ import {
   beginCreateEvent,
   cancelCreateEvent,
   confirmCreateEvent,
-  handleCreateEventText,
+  continueCreateEvent,
   skipDescriptionEvent,
 } from '../../flows/createEventFlow.js'
 import { ICS } from '../ui/callbackData.js'
-import { applyResult } from '../lib/applyResult.js'
+import { applyOutcome } from '../lib/applyOutcome.js'
 
 export function registerIcsCreate(bot: Telegraf) {
   bot.action(ICS.CREATE, async (ctx) => {
@@ -17,7 +17,7 @@ export function registerIcsCreate(bot: Telegraf) {
     if (!userId) return
 
     const res = beginCreateEvent(userId)
-    await applyResult(ctx, res)
+    await applyOutcome(ctx, res)
   })
 
   bot.action(ICS.CANCEL, async (ctx) => {
@@ -26,7 +26,7 @@ export function registerIcsCreate(bot: Telegraf) {
     if (!userId) return
 
     const res = cancelCreateEvent(userId)
-    await applyResult(ctx, res)
+    await applyOutcome(ctx, res)
   })
 
   bot.action(ICS.CONFIRM, async (ctx) => {
@@ -35,7 +35,7 @@ export function registerIcsCreate(bot: Telegraf) {
     if (!userId) return
 
     const res = confirmCreateEvent(userId)
-    await applyResult(ctx, res)
+    await applyOutcome(ctx, res)
   })
 
   bot.action(ICS.SKIP, async (ctx) => {
@@ -44,7 +44,7 @@ export function registerIcsCreate(bot: Telegraf) {
     if (!userId) return
 
     const res = skipDescriptionEvent(userId)
-    await applyResult(ctx, res)
+    await applyOutcome(ctx, res)
   })
 
   bot.on(message('text'), async (ctx) => {
@@ -54,7 +54,7 @@ export function registerIcsCreate(bot: Telegraf) {
     const text = ctx.message.text.trim()
     if (text.startsWith('/')) return
 
-    const res = handleCreateEventText(userId, text)
-    await applyResult(ctx, res)
+    const outcome = continueCreateEvent(userId, text)
+    await applyOutcome(ctx, outcome)
   })
 }

@@ -4,7 +4,16 @@ import { parseLocalDateTime } from '../services/dateTime.js'
 import { createIcsFile } from '../services/icsService.js'
 import { escapeHtml } from '../services/escapeHtml.js'
 
-export type FlowResult =
+/**
+ * FlowOutcome — контракт между flows и Telegram UI.
+ *
+ * Flow НЕ отправляет сообщения напрямую.
+ * Вместо этого он возвращает Outcome, а bot-layer исполняет его
+ * (отправляет текст, клавиатуру, файл и т.п.).
+ *
+ * Это держит flows чистыми и тестируемыми.
+ */
+export type FlowOutcome =
   | { kind: 'reply'; text: string; keyboard?: 'wizard' | 'confirm' | 'description' }
   | { kind: 'sendIcs'; text: string; filename: string; content: Buffer }
   | { kind: 'noop' }
@@ -21,7 +30,7 @@ const DurationSchema = z.coerce
   .min(1, 'Минимум 1 мин')
   .max(24 * 60, 'Макс 1440 мин')
 
-export function handleCreateEventText(userId: number, text: string): FlowResult {
+export function continueCreateEvent(userId: number, text: string): FlowOutcome {
   const draft = getDraft(userId)
   if (!draft) return { kind: 'noop' }
 
@@ -98,17 +107,17 @@ export function handleCreateEventText(userId: number, text: string): FlowResult 
   return { kind: 'noop' }
 }
 
-export function beginCreateEvent(userId: number): FlowResult {
+export function beginCreateEvent(userId: number): FlowOutcome {
   startCreateEvent(userId)
   return { kind: 'reply', text: '🗓 Введи *название* события:', keyboard: 'wizard' }
 }
 
-export function cancelCreateEvent(userId: number): FlowResult {
+export function cancelCreateEvent(userId: number): FlowOutcome {
   clearDraft(userId)
   return { kind: 'reply', text: 'Ок, отменил создание события.' }
 }
 
-export function confirmCreateEvent(userId: number): FlowResult {
+export function confirmCreateEvent(userId: number): FlowOutcome {
   const draft = getDraft(userId)
   if (!draft?.title || !draft.startAt || !draft.durationMinutes) {
     return { kind: 'reply', text: 'Черновик события неполный. Начни заново: /start' }
@@ -130,7 +139,7 @@ export function confirmCreateEvent(userId: number): FlowResult {
   }
 }
 
-export function skipDescriptionEvent(userId: number): FlowResult {
+export function skipDescriptionEvent(userId: number): FlowOutcome {
   updateDraft(userId, { description: '', step: 'start' })
 
   return {

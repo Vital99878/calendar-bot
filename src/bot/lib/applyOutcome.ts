@@ -1,10 +1,10 @@
 import { Context } from 'telegraf'
-import type { FlowResult } from '../../flows/createEventFlow.js'
+import type { FlowOutcome } from '../../flows/createEventFlow.js'
 import { confirmKeyboard, descriptionKeyboard, wizardKeyboard } from '../ui/keyboards.ts/index.js'
 
 type ReplyExtra = Parameters<Context['reply']>[1]
 
-export async function applyResult(ctx: Context, res: FlowResult) {
+export async function applyOutcome(ctx: Context, res: FlowOutcome) {
   if (res.kind === 'noop') return
 
   if (res.kind === 'reply') {

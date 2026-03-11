@@ -8,17 +8,12 @@ export type IcsInput = {
   location?: string
 }
 
-function toIcsDateParts(d: Date): [number, number, number, number, number] {
-  // локальные значения (как ввёл пользователь)
-  return [d.getFullYear(), d.getMonth() + 1, d.getDate(), d.getHours(), d.getMinutes()]
-}
-
 export function createIcsFile(input: IcsInput): { filename: string; content: Buffer } {
   const attrs: EventAttributes = {
     title: input.title,
+    description: input.description,
     start: toIcsDateParts(input.startAt),
     duration: { minutes: input.durationMinutes },
-    description: input.description,
     location: input.location,
   }
 
@@ -31,4 +26,9 @@ export function createIcsFile(input: IcsInput): { filename: string; content: Buf
     filename: 'event.ics', // todo Название файла
     content: Buffer.from(value, 'utf8'),
   }
+}
+
+function toIcsDateParts(d: Date): [number, number, number, number, number] {
+  // локальные значения (как ввёл пользователь)
+  return [d.getFullYear(), d.getMonth() + 1, d.getDate(), d.getHours(), d.getMinutes()]
 }

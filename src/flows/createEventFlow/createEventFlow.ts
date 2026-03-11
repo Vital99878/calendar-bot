@@ -94,13 +94,15 @@ export function cancelCreateEvent(userId: number): FlowOutcome {
 
 export function confirmCreateEvent(userId: number): FlowOutcome {
   const draft = getDraft(userId)
-  if (!draft?.title || !draft?.description || !draft.startAt || !draft.durationMinutes) {
+  if (!draft?.title || !draft.startAt || !draft.durationMinutes) {
     return { kind: 'reply', text: 'Черновик события неполный. Начни заново: /start' }
   }
 
+  const desc = draft.description
+
   const { filename, content } = createIcsFile({
     title: draft.title,
-    description: draft.description,
+    ...(desc ? { description: desc } : {}),
     startAt: draft.startAt,
     durationMinutes: draft.durationMinutes,
   })
@@ -127,7 +129,7 @@ export function skipDescriptionEvent(userId: number): FlowOutcome {
 
 function buildSummary(userId: number) {
   const d = getDraft(userId)
-  if (!d?.title || !d.description || !d.startAt || !d.durationMinutes) return 'Черновик неполный'
+  if (!d?.title || !d.startAt || !d.durationMinutes) return 'Черновик неполный'
 
   const yyyy = d.startAt.getFullYear()
   const mm = String(d.startAt.getMonth() + 1).padStart(2, '0')

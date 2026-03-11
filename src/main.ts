@@ -3,7 +3,7 @@ import { Telegraf } from 'telegraf'
 import { z } from 'zod'
 import { registerStart } from './bot/handlers/start.js'
 import { registerTemplates } from './bot/handlers/templates.js'
-import { registerEvents } from './bot/handlers/events.js'
+import { registerIcsCreate } from './bot/handlers/icsCreate.js'
 
 const EnvSchema = z.object({
   BOT_TOKEN: z.string().min(1),
@@ -18,7 +18,7 @@ bot.catch((err, ctx) => {
 })
 
 registerStart(bot)
-registerEvents(bot)
+registerIcsCreate(bot)
 registerTemplates(bot)
 
 async function start() {

@@ -1,18 +1,16 @@
-import { Context, Markup, type Telegraf } from 'telegraf'
+import { type Telegraf } from 'telegraf'
 import { message } from 'telegraf/filters'
 import {
   beginCreateEvent,
   cancelCreateEvent,
   confirmCreateEvent,
-  type FlowResult,
   handleCreateEventText,
   skipDescriptionEvent,
 } from '../../flows/createEventFlow.js'
 import { ICS } from '../ui/callbackData.js'
+import { applyResult } from '../lib/applyResult.js'
 
-type ReplyExtra = Parameters<Context['reply']>[1]
-
-export function registerEvents(bot: Telegraf) {
+export function registerIcsCreate(bot: Telegraf) {
   bot.action(ICS.CREATE, async (ctx) => {
     await ctx.answerCbQuery()
     const userId = ctx.from?.id
@@ -59,43 +57,4 @@ export function registerEvents(bot: Telegraf) {
     const res = handleCreateEventText(userId, text)
     await applyResult(ctx, res)
   })
-}
-
-async function applyResult(ctx: Context, res: FlowResult) {
-  if (res.kind === 'noop') return
-
-  if (res.kind === 'reply') {
-    const extra: ReplyExtra = { parse_mode: 'HTML' }
-
-    if (res.keyboard === 'confirm') {
-      Object.assign(extra, confirmKeyboard())
-    } else if (res.keyboard === 'wizard') {
-      Object.assign(extra, wizardKeyboard())
-    } else if (res.keyboard === 'description') {
-      Object.assign(extra, descriptionKeyboard())
-    }
-
-    await ctx.reply(res.text, extra)
-    return
-  }
-
-  if (res.kind === 'sendIcs') {
-    await ctx.reply(res.text)
-    await ctx.replyWithDocument({ source: res.content, filename: res.filename })
-  }
-}
-
-function wizardKeyboard() {
-  return Markup.inlineKeyboard([Markup.button.callback('✖️ Отмена', ICS.CANCEL)])
-}
-
-function descriptionKeyboard() {
-  return Markup.inlineKeyboard([Markup.button.callback('Пропустить', ICS.SKIP)])
-}
-
-function confirmKeyboard() {
-  return Markup.inlineKeyboard([
-    [Markup.button.callback('✅ Подтвердить', ICS.CONFIRM)],
-    [Markup.button.callback('✖️ Отмена', ICS.CANCEL)],
-  ])
 }

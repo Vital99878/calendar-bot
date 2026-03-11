@@ -14,6 +14,7 @@ const TitleSchema = z
   .trim()
   .min(1, 'Название не должно быть пустым')
   .max(80, 'Макс 80 символов')
+
 const DurationSchema = z.coerce
   .number()
   .int()

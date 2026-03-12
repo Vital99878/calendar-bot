@@ -5,6 +5,7 @@ export const ICS = {
   CANCEL: 'ics:cancel',
   CONFIRM: 'ics:confirm',
   SKIP: 'ics:skip',
+  SHOW_START_EXAMPLE: 'ics:start:date-and-time:example',
   BACK: 'ics:back',
 } as const
 

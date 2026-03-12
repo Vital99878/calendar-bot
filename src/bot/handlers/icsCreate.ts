@@ -9,6 +9,7 @@ import {
 } from '../../flows/createEventFlow/createEventFlow.js'
 import { ICS } from '../ui/callbackData.js'
 import { applyOutcome } from '../lib/applyOutcome.js'
+import { buildDateExamplesHtml } from '../ui/messages.js'
 
 export function registerIcsCreate(bot: Telegraf) {
   bot.action(ICS.CREATE, async (ctx) => {
@@ -45,6 +46,11 @@ export function registerIcsCreate(bot: Telegraf) {
 
     const res = skipDescriptionEvent(userId)
     await applyOutcome(ctx, res)
+  })
+
+  bot.action(ICS.SHOW_START_EXAMPLE, async (ctx) => {
+    await ctx.answerCbQuery()
+    await ctx.reply(buildDateExamplesHtml(new Date()), { parse_mode: 'HTML' })
   })
 
   bot.on(message('text'), async (ctx) => {

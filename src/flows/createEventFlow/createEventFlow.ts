@@ -38,8 +38,12 @@ export function continueCreateEvent(userId: number, text: string): FlowOutcome {
     updateDraft(userId, { description: escapeHtml(parsed.data), step: 'start' })
     return {
       kind: 'reply',
-      text: '📅 Введи <b>дату и время начала</b> в формате YYYY-MM-DD HH:mm:',
-      keyboard: 'description',
+      text:
+        '📅 Введи <b>дату и время начала</b> одним из форматов:\n' +
+        '• <code>DD.MM.YYYY HH:mm</code>\n' +
+        '• <code>1 января 2026 HH:mm</code>\n' +
+        'Нажми «Примеры», чтобы скопировать готовые варианты.',
+      keyboard: 'start',
     }
   }
 
@@ -119,7 +123,6 @@ export function confirmCreateEvent(userId: number): FlowOutcome {
 
 export function skipDescriptionEvent(userId: number): FlowOutcome {
   updateDraft(userId, { description: '', step: 'start' })
-
   return {
     kind: 'reply',
     text: '📅 Введи *дату и время начала* в формате `YYYY-MM-DD HH:mm`:',

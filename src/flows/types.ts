@@ -8,6 +8,6 @@
  * Это держит flows чистыми и тестируемыми.
  */
 export type FlowOutcome =
-  | { kind: 'reply'; text: string; keyboard?: 'wizard' | 'confirm' | 'description' }
+  | { kind: 'reply'; text: string; keyboard?: 'wizard' | 'confirm' | 'description' | 'start' }
   | { kind: 'sendIcs'; text: string; filename: string; content: Buffer }
   | { kind: 'noop' }

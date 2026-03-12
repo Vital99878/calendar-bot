@@ -1,6 +1,8 @@
 export type CreateTemplateDraft = {
   step: 'title'
   title?: string
+  isAllDay?: boolean
+  remindMinutes?: number | null
 }
 
 const drafts = new Map<number, CreateTemplateDraft>()

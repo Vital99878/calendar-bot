@@ -2,7 +2,7 @@ import { clearDraft, getDraft, startCreateEvent, updateDraft } from './eventDraf
 import { parseLocalDateTime } from '../../services/dateTime.js'
 import { createIcsFile } from '../../services/icsService.js'
 import { escapeHtml } from '../../services/escapeHtml.js'
-import { DescriptionSchema, DurationSchema, TitleSchema } from './schemas.js'
+import { DescriptionSchema, DurationSchema, RemindSchema, TitleSchema } from './schemas.js'
 import type { FlowOutcome } from '../types.js'
 
 export function continueCreateEvent(userId: number, text: string): FlowOutcome {
@@ -75,6 +75,19 @@ export function continueCreateEvent(userId: number, text: string): FlowOutcome {
       }
     }
     updateDraft(userId, { durationMinutes: parsed.data, step: 'confirm' })
+    return { kind: 'reply', text: 'Введите напоминание (можно пропустить)', keyboard: 'remind' }
+  }
+
+  if (draft.step === 'remind') {
+    const parsed = RemindSchema.safeParse(text)
+    if (!parsed.success) {
+      return {
+        kind: 'reply',
+        text: `❌ ${parsed.error.issues[0]?.message}\nНапример: 30, 60, 90`,
+        keyboard: 'wizard',
+      }
+    }
+    updateDraft(userId, { remindMinutes: parsed.data, step: 'confirm' })
     return { kind: 'reply', text: buildSummary(userId), keyboard: 'confirm' }
   }
 
@@ -127,6 +140,15 @@ export function skipDescriptionEvent(userId: number): FlowOutcome {
     kind: 'reply',
     text: '📅 Введи *дату и время начала* в формате `YYYY-MM-DD HH:mm`:',
     keyboard: 'wizard',
+  }
+}
+
+export function remindEvent(userId: number, remindMinutes: number | null): FlowOutcome {
+  updateDraft(userId, { remindMinutes, step: 'confirm' })
+  return {
+    kind: 'reply',
+    text: buildSummary(userId),
+    keyboard: 'confirm',
   }
 }
 

@@ -3,6 +3,7 @@ import {
   confirmKeyboard,
   dateAndTimeStartExampleKeyboard,
   descriptionKeyboard,
+  remindKeyboard,
   wizardKeyboard,
 } from '../ui/keyboards.ts/index.js'
 import type { FlowOutcome } from '../../flows/types.js'
@@ -12,6 +13,7 @@ type ReplyExtra = Parameters<Context['reply']>[1]
 export async function applyOutcome(ctx: Context, res: FlowOutcome) {
   if (res.kind === 'noop') return
 
+  // Обогатить ответ Кнопками
   if (res.kind === 'reply') {
     const extra: ReplyExtra = { parse_mode: 'HTML' }
 
@@ -23,7 +25,7 @@ export async function applyOutcome(ctx: Context, res: FlowOutcome) {
       Object.assign(extra, descriptionKeyboard())
     } else if (res.keyboard === 'start') {
       Object.assign(extra, dateAndTimeStartExampleKeyboard())
-    }
+    } else if (res.keyboard === 'remind') Object.assign(extra, remindKeyboard())
 
     await ctx.reply(res.text, extra)
     return

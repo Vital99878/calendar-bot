@@ -6,6 +6,10 @@ export const ICS = {
   CONFIRM: 'ics:confirm',
   SKIP: 'ics:skip',
   SHOW_START_EXAMPLE: 'ics:start:date-and-time:example',
+  // reminders
+  REMIND_NONE: 'ics:remind:none',
+  REMIND: (m: number) => `ics:remind:${m}`,
+  ALL_DAY: 'ics:all_day',
   BACK: 'ics:back',
 } as const
 

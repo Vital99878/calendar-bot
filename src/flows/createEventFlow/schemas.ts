@@ -17,3 +17,5 @@ export const DurationSchema = z.coerce
   .int()
   .min(1, 'Минимум 1 мин')
   .max(24 * 60, 'Макс 1440 мин')
+
+export const RemindSchema = DurationSchema

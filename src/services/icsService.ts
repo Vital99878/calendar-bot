@@ -18,20 +18,20 @@ export function createIcsFile(input: IcsInput): { filename: string; content: Buf
     location: input.location,
     alarms: [],
   }
-  let result = ''
 
-  const { error, value } = createEvent(attrs)
+  // eslint-disable-next-line prefer-const
+  let { error, value } = createEvent(attrs)
   if (error || !value) {
     throw error ?? new Error('Failed to generate ICS')
   }
 
   if (input.remindMinutes && input.remindMinutes > 0) {
-    result = withValarm(value, input.remindMinutes)
+    value = withValarm(value, input.remindMinutes)
   }
 
   return {
     filename: 'event.ics', // todo Название файла
-    content: Buffer.from(result, 'utf8'),
+    content: Buffer.from(value, 'utf8'),
   }
 }
 

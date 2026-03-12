@@ -165,12 +165,28 @@ function buildSummary(userId: number) {
   const desc = d.description?.trim()
   const descLine = desc ? `• Описание: <b>${escapeHtml(desc)}</b>\n` : ''
 
+  const allDayLine = d.isAllDay ? `• Весь день: <b>да</b>\n` : ''
+
+  const remind = d.remindMinutes
+  const remindLine =
+    !d.isAllDay && typeof remind === 'number' && remind > 0
+      ? `• Напоминание: <b>${escapeHtml(formatRemind(remind))}</b>\n`
+      : ''
+
   return (
     `<b>Проверь данные:</b>\n` +
-    `• Название: <b>${escapeHtml(d.title ?? '')}</b>\n` +
+    `• Название: <b>${escapeHtml(d.title)}</b>\n` +
     descLine +
+    allDayLine +
     `• Старт: <code>${yyyy}-${mm}-${dd} ${hh}:${mi}</code>\n` +
-    `• Длительность: <b>${d.durationMinutes} мин</b>\n\n` +
-    `Если всё ок — жми ✅ Подтвердить.`
+    `• Длительность: <b>${d.durationMinutes} мин</b>\n` +
+    remindLine +
+    `\nЕсли всё ок — жми ✅ Подтвердить.`
   )
+}
+
+function formatRemind(minutes: number) {
+  if (minutes === 1440) return 'за 1 день'
+  if (minutes % 60 === 0) return `за ${minutes / 60} ч`
+  return `за ${minutes} мин`
 }
